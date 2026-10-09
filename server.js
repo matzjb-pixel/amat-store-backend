@@ -13,6 +13,10 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get('/api/transaksi', (req, res) => {
+    res.json({ status: true, message: "Backend aktif!" });
+});
+
 app.post('/api/transaksi', (req, res) => {
     const { service_code, target } = req.body;
 
