@@ -13,8 +13,12 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get('/', (req, res) => {
+    res.json({ status: true, message: "Backend Amat Store aktif!" });
+});
+
 app.get('/api/transaksi', (req, res) => {
-    res.json({ status: true, message: "Backend aktif!" });
+    res.json({ status: true, message: "Endpoint API Transaksi aktif!" });
 });
 
 app.post('/api/transaksi', (req, res) => {
