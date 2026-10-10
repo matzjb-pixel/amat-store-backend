@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     let parameter = {
       transaction_details: {
         order_id: orderId || `AMAT-${Date.now()}`,
-        gross_amount: parseInt(grossAmount)
+        gross_amount: parseInt(grossAmount || 10000)
       },
       customer_details: {
         first_name: customerDetails?.name || "Gamer Amat Store",
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Midtrans Error:', error);
-    return res.status(500).json({ error: error.message || 'Internal Server Error' });
+    console.error('DETAIL MIDTRANS ERROR:', error);
+    return res.status(500).json({ error: error.ApiResponse?.error_messages || error.message || 'Internal Server Error' });
   }
 }
