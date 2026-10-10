@@ -1,7 +1,6 @@
 const midtransClient = require('midtrans-client');
 
 export default async function handler(req, res) {
-  // Set header CORS agar frontend bisa mengakses backend
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -10,13 +9,11 @@ export default async function handler(req, res) {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  // Tangani preflight request OPTIONS dari browser
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
-  // Hanya izinkan metode POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
