@@ -22,9 +22,9 @@ export default async function handler(req, res) {
     const { orderId, grossAmount, customerDetails } = req.body;
 
     let snap = new midtransClient.Snap({
-      isProduction: false, 
-      serverKey: 'Mid-server-cFWHYjsN_JgVnHTGPeekx1YP',
-      clientKey: 'Mid-client-V3Hmpcr74l4DuejG'
+      isProduction: true, 
+      serverKey: process.env.MIDTRANS_SERVER_KEY,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY
     });
 
     let parameter = {
@@ -36,8 +36,8 @@ export default async function handler(req, res) {
         first_name: customerDetails?.name || "Gamer Amat Store",
         email: customerDetails?.email || "customer@amatstore.com"
       },
-      // KITA PAKSA CUMA MUNCUL QRIS DOANG, NO DEBAT!
-      enabled_payments: ["qris"]
+      // KHUSUS QRIS DOANG DI MODE PRODUCTION
+      enabled_payments: ["other_qris"]
     };
 
     const transaction = await snap.createTransaction(parameter);
