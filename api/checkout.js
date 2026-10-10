@@ -22,9 +22,9 @@ export default async function handler(req, res) {
     const { orderId, grossAmount, customerDetails } = req.body;
 
     let snap = new midtransClient.Snap({
-      isProduction: false,
-      serverKey: process.env.MIDTRANS_SERVER_KEY,
-      clientKey: process.env.MIDTRANS_CLIENT_KEY
+      isProduction: true, 
+      serverKey: 'Mid-server-cFWHYjsN_JgVnHTGPeekx1YP',
+      clientKey: 'Mid-client-V3Hmpcr74l4DuejG'
     });
 
     let parameter = {
@@ -47,6 +47,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('DETAIL MIDTRANS ERROR:', error);
-    return res.status(500).json({ error: error.ApiResponse?.error_messages || error.message || 'Internal Server Error' });
+    return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }
