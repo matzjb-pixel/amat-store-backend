@@ -35,7 +35,9 @@ export default async function handler(req, res) {
       customer_details: {
         first_name: customerDetails?.name || "Gamer Amat Store",
         email: customerDetails?.email || "customer@amatstore.com"
-      }
+      },
+      // INI KUNCINYA: Kita paksa Midtrans cuma nampilin QRIS & GoPay
+      enabled_payments: ["qris", "gopay"]
     };
 
     const transaction = await snap.createTransaction(parameter);
