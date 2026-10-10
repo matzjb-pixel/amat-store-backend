@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
     // Inisialisasi Midtrans Snap API Client menggunakan Server Key lu
     let snap = new midtransClient.Snap({
-      isProduction: false, // Ubah jadi true kalau udah siap rilis ke publik/live
+      isProduction: false,
       serverKey: process.env.MIDTRANS_SERVER_KEY,
       clientKey: process.env.MIDTRANS_CLIENT_KEY
     });
@@ -19,17 +19,17 @@ export default async function handler(req, res) {
     let parameter = {
       transaction_details: {
         order_id: orderId || `AMAT-${Date.now()}`,
-        gross_amount: grossAmount
+        gross_amount: parseInt(grossAmount)
       },
       customer_details: {
-        first_name: customerDetails?.name || 'Gamer',
-        email: customerDetails?.email || 'customer@amatstore.com'
+        first_name: customerDetails?.name || "Gamer Amat Store",
+        email: customerDetails?.email || "customer@amatstore.com"
       }
     };
 
     // Minta Snap Token ke Midtrans
     const transaction = await snap.createTransaction(parameter);
-    
+
     return res.status(200).json({
       token: transaction.token,
       redirect_url: transaction.redirect_url
