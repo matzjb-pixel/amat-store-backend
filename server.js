@@ -1,71 +1,89 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
+const md5 = require('md5'); // Library untuk enkripsi password/signature VIP Reseller
 
 const app = express();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
 app.use(express.json());
 
+// Middleware CORS
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+    next();
 });
 
-app.get('/', (req, res) => {
-  res.json({ status: true, message: "Backend Amat Store aktif!" });
-});
+// Koneksi Supabase
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-app.get('/api/transaksi', (req, res) => {
-  res.json({ status: true, message: "Endpoint API Transaksi aktif!" });
-});
+// Data VIP Reseller dari Vercel
+const vipApiId = process.env.VIP_API_ID;
+const vipApiKey = process.env.VIP_API_KEY;
 
 app.post('/api/transaksi', async (req, res) => {
-  const { service_code, target } = req.body;
+    const { service_code, target, zone } = req.body;
 
-  if (!service_code || !target) {
-    return res.status(400).json({
-      status: false,
-      message: "Parameter service_code dan target wajib diisi!"
-    });
-  }
+    try {
+        // 1. Buat Signature untuk VIP Reseller (Formula: MD5 dari API_ID + API_KEY)
+        const sign = md5(vipApiId + vipApiKey);
 
-  let productName = "";
-  if (service_code === 'ml-50') {
-    productName = "Mobile Legends 50 Diamond";
-  } else if (service_code === 'telkomsel-10k') {
-    productName = "Pulsa Telkomsel 10.000";
-  } else {
-    return res.status(400).json({
-      status: false,
-      message: "Produk tidak ditemukan!"
-    });
-  }
+        // 2. Tembak Request Otomatis ke API VIP Reseller
+        const vipRequest = await fetch('https://vip-reseller.co.id/api/game-feature', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                key: vipApiKey,
+                sign: sign,
+                type: 'order',
+                service: service_code,
+                data_no: target,
+                data_zone: zone
+            })
+        });
 
-  const { error } = await supabase
-    .from('transactions')
-    .insert([{ service_code, target }]);
+        const vipResponse = await vipRequest.json();
 
-  if (error) {
-    return res.status(500).json({
-      status: false,
-      message: error.message
-    });
-  }
+        // 3. Simpan data ke Database Supabase lu (Format target digabung agar masuk ke 1 kolom)
+        const dataTargetGabung = target + " (" + zone + ")";
+        await supabase
+            .from('transactions')
+            .insert([
+                { service_code: service_code, target: dataTargetGabung }
+            ]);
 
-  res.json({
-    status: true,
-    message: `Transaksi ${productName} ke tujuan ${target} berhasil diproses!`,
-    data: {
-      service_code,
-      target,
-      status_transaksi: 'SUCCESS'
+        // 4. Kirim balasan ke Web Frontend sesuai jawaban dari VIP Reseller
+        if (vipResponse.result === true) {
+            res.json({ 
+                status: true, 
+                message: vipResponse.message || 'Pesanan berhasil dikirim ke server!', 
+                status_transaksi: 'SUCCESS',
+                target: dataTargetGabung
+            });
+        } else {
+            res.json({ 
+                status: false, 
+                message: vipResponse.message || 'Pesanan gagal diproses server.', 
+                status_transaksi: 'FAILED',
+                target: dataTargetGabung
+            });
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ 
+            status: false, 
+            message: 'Terjadi kesalahan internal pada server.', 
+            status_transaksi: 'ERROR' 
+        });
     }
-  });
 });
 
-module.exports = app;
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
