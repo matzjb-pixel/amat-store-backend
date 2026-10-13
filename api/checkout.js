@@ -21,12 +21,11 @@ export default async function handler(req, res) {
   try {
     const { orderId, grossAmount, customerDetails } = req.body;
 
-        let snap = new midtransClient.Snap({
-      isProduction: false, 
+    let snap = new midtransClient.Snap({
+      isProduction: false,
       serverKey: 'Mid-server-cfWHYjsN_JgVnHTGPeekx1YP',
       clientKey: 'Mid-client-V3Hmpcr74I4DuejG'
     });
-
 
     let parameter = {
       transaction_details: {
@@ -36,8 +35,7 @@ export default async function handler(req, res) {
       customer_details: {
         first_name: customerDetails?.name || "Gamer Amat Store",
         email: customerDetails?.email || "customer@amatstore.com"
-      },     
-      
+      }
     };
 
     const transaction = await snap.createTransaction(parameter);
