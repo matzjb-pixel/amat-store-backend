@@ -36,9 +36,9 @@ export default async function handler(req, res) {
       customer_details: {
         first_name: customerDetails?.name || "Gamer Amat Store",
         email: customerDetails?.email || "customer@amatstore.com"
-      },
-      // KHUSUS QRIS DOANG DI MODE PRODUCTION
-      enabled_payments: ["other_qris"]
+      },     
+      // HANYA E-WALLET & QRIS (TANPA TRANSFER BANK)
+      enabled_payments: ["gopay", "shopeepay", "qris"]
     };
 
     const transaction = await snap.createTransaction(parameter);
