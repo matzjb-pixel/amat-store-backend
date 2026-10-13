@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
     let snap = new midtransClient.Snap({
       isProduction: false,
-      serverKey: 'Mid-server-cfWHYjsN_JgVnHTGPeekx1YP',
+      serverKey: 'SB-Mid-server-Wlqr6MZkuXPovHapOl8QEFF7',
       clientKey: 'Mid-client-V3Hmpcr74I4DuejG'
     });
 
