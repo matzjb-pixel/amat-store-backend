@@ -35,7 +35,9 @@ export default async function handler(req, res) {
       customer_details: {
         first_name: customerDetails?.name || "Gamer Amat Store",
         email: customerDetails?.email || "customer@amatstore.com"
-      }
+      },
+      // HANYA E-WALLET & QRIS (GOPAY, SHOPEEPAY, OVO, DAN QRIS/DANA)
+      enabled_payments: ["gopay", "shopeepay", "ovo", "qris"]
     };
 
     const transaction = await snap.createTransaction(parameter);
